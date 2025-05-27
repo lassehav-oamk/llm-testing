@@ -31,7 +31,7 @@ def generate_answer_stream(query, retrieved_docs, tokenizer, model):
     import torch
 
     context = "\n".join(retrieved_docs)
-    prompt = f"Context: {context}\nAnswer with facts from the context, if the context is not related to the question indicate clearly so in the answer and do best effort outside the context. Here is the question: {query}\nAnswer: "
+    prompt = f"Context: {context}\nAnswer with facts from the context. Here is the question: {query}\nAnswer: "
     inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
 
     # Stream tokens one by one
@@ -90,7 +90,7 @@ def main():
     print("Generator model loaded successfully.")
 
     # Example query
-    query = "How many countries are there in the world?"
+    query = "What materials should I use to build a playhouse outside for my children?"
     
 
     print(f"Query: {query}")
