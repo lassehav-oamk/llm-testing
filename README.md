@@ -1,70 +1,91 @@
-
 # Getting Started with This Project
 
-Hey there! So you've cloned the repository – awesome! Let's get you set up to run this project. We use a virtual environment to keep things tidy and ensure everyone is working with the same library versions. Here's how to get started:
+Hey there! So you've cloned the repository – awesome! Let's get you set up to run this project. We use a virtual environment to keep things tidy and ensure everyone is working with the same library versions. This repository contains **three demo projects**, each in its own folder at the root of the repository. Each demo has its own `requirements.txt` for dependencies.
 
 ## Setting Up Your Local Environment
 
 **1. Creating the Virtual Environment (if it doesn't exist):**
 
-Sometimes, the virtual environment (`venv` directory) might not be included in the repository. If you don't see a `venv` folder in the project root, you'll need to create one. Open your terminal in the project's root directory and run:
+If you don't see a `venv` folder in the project root, create one by running:
 
 ```
 python -m venv venv
 ```
 
-This command uses Python's built-in `venv` module to create an isolated Python environment in a folder named `venv`. Think of it as a clean sandbox where we'll install all the project-specific tools.
-
 **2. Activating the Virtual Environment:**
 
-Before you can start working on the project or installing its dependencies, you need to activate this sandbox. The command to do this depends on your operating system:
+Activate the virtual environment before installing dependencies or running any demo.
 
-* **Linux/macOS:**
-
-    ```
-    source venv/bin/activate
-    ```
 * **Windows (Command Prompt):**
-
     ```
     venv\Scripts\activate
     ```
 * **Windows (PowerShell):**
-
     ```
     .\venv\Scripts\Activate.ps1
     ```
+* **Linux/macOS:**
+    ```
+    source venv/bin/activate
+    ```
 
-    Once activated, you'll notice the name of the virtual environment (usually `(venv)`) at the beginning of your terminal prompt. This tells you that you're now working within the isolated environment.
+Once activated, you'll see `(venv)` at the start of your terminal prompt.
 
-**3. Installing Dependencies:**
+---
 
-This project relies on specific Python libraries to function correctly. These libraries, along with their exact versions, are listed in the `requirements.txt` file located in the project's root directory.
+## Working with the Demo Projects
 
-**What's in `requirements.txt`?**
+There are three folders in the root directory, each containing a separate demo project. For each demo, follow these steps:
 
-This file is like a recipe for all the external Python packages this project needs. Each line typically specifies a package name and a specific version (e.g., `requests==2.31.0`). Pinning the versions like this ensures that everyone working on the project uses the same versions of these libraries, which helps prevent unexpected errors and inconsistencies.
+### 1. Change Directory to the Demo
 
-**How to Install Them:**
+Replace `<demo-folder>` with the actual folder name (e.g., `local-hello-worldrag`, `llama3-base`, `gemini-rag-hello-world`):
 
-With your virtual environment activated, navigate to the project's root directory in your terminal (if you're not already there) and run the following command:
+```
+cd <demo-folder>
+```
+
+### 2. Install Dependencies
+
+Each demo has its own `requirements.txt`. With your virtual environment activated and inside the demo folder, run:
 
 ```
 pip install -r requirements.txt
 ```
 
-Here's what this command does:
+### 3. Run the Demo
 
-* `pip`: This is the Python package installer. It's the tool we use to download and install Python libraries.
-* `install`: This tells `pip` that we want to install something.
-* `-r requirements.txt`: This tells `pip` to read the list of packages to install from the `requirements.txt` file.
+Check the `README.md` or documentation inside each demo folder for specific instructions on how to start that demo. Common ways to start a Python project include:
 
-`pip` will then go through the `requirements.txt` file, download each listed package (and its dependencies), and install them within your *active* virtual environment. These libraries are now available for the project's code to use.
+```
+python main.py
+```
+or
+```
+python app.py
+```
 
-**4. Running the Project:**
+---
 
-Once the dependencies are installed, you should be able to run the project's scripts. The specific way to do this will depend on the project itself (e.g., running a Python script, a web server, etc.). Look for instructions in the project's main `README.md` or other documentation.
+## Example Workflow
 
-**In a Nutshell:**
+Here's how you might run a demo called `demo1`:
 
-We use a virtual environment (`venv`) to create an isolated space for this project's dependencies. The `requirements.txt` file acts as a blueprint, listing all the necessary libraries and their specific versions. By activating the `venv` and running `pip install -r requirements.txt`, you ensure that you have the exact same set of tools that the project needs to run smoothly. Happy coding!
+```
+# From the project root
+python -m venv venv
+venv\Scripts\activate         # or source venv/bin/activate on Linux/macOS
+cd demo1
+pip install -r requirements.txt
+python main.py                # or the appropriate start command for the demo
+```
+
+---
+
+## Summary
+
+- Use a virtual environment (`venv`) in the project root.
+- Each demo project is in its own folder with its own `requirements.txt`.
+- Activate the virtual environment, change into the demo folder, install dependencies, and run the demo as instructed.
+
+Happy coding!

@@ -1,10 +1,9 @@
-import faiss
+from sklearn.neighbors import NearestNeighbors
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from transformers import AutoModelForCausalLM, AutoModelForSeq2SeqLM,  AutoTokenizer
-import torch
 
-def load_data(file_path):
+def load_data_from_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         documents = [line.strip() for line in f if line.strip()]
     return documents
@@ -14,111 +13,97 @@ def create_embeddings(documents, model):
     return np.array(embeddings)
 
 def build_index(embeddings):
-    dimension = embeddings.shape[1]
-    index = faiss.IndexFlatL2(dimension)
-    index.add(embeddings)
+    index = NearestNeighbors(n_neighbors=5, metric='euclidean')  # or 'cosine'
+    index.fit(embeddings)
     return index
 
 def retrieve_documents(query, model, index, documents, k=1):
     query_embedding = model.encode([query], convert_to_tensor=False)
-    distances, indices = index.search(np.array(query_embedding), k)
+    distances, indices = index.kneighbors(query_embedding, n_neighbors=k)
+    print(f"Distances: {distances}, Indices: {indices}")
     return [documents[idx] for idx in indices[0]]
 
-def generate_answer(query, retrieved_docs, tokenizer, model):
-    # Combine query and retrieved documents into a prompt
+def generate_answer_stream(query, retrieved_docs, tokenizer, model):
+    """
+    Generate answer using streaming tokens (generator).
+    Only works with models that support `generate` with `return_dict_in_generate=True` and `output_scores=True`.
+    """
+    import torch
+
     context = "\n".join(retrieved_docs)
-    #prompt = f"Context: {context}. \n\nUse only the provided context to answer the following question with a single number, word, or short phrase: {query} \nAnswer: "
-    prompt = f"Context: {context}\nAnswer with facts from the context: {query}\nAnswer: "
-
-
-    # Tokenize input
-    #inputs = tokenizer(prompt, return_tensors="pt")
+    prompt = f"Context: {context}\nAnswer with facts from the context, if the context is not related to the question indicate clearly so in the answer and do best effort outside the context. Here is the question: {query}\nAnswer: "
     inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
 
+    # Stream tokens one by one
+    streamer = None
+    try:
+        from transformers import TextStreamer
+        streamer = TextStreamer(tokenizer)
+    except ImportError:
+        pass  # Fallback to manual decoding if TextStreamer is not available
 
-    # Generate response
-    outputs = model.generate(
+    # Generate response with streaming
+    output_ids = []
+    for output in model.generate(
         inputs.input_ids,
         attention_mask=inputs.attention_mask,
-        max_length=150,        
+        max_length=150,
         num_return_sequences=1,
-        no_repeat_ngram_size=0, #Prevents bigram repetition, which can force gpt2 to diversify its output unnaturally, leading to incoherent text like the population statistics.
-        do_sample=False, # Random sampling increases the likelihood of gpt2 generating hallucinated or off-topic text, even with relevant context.
-        top_k=10,
-        top_p=0.9,
-        temperature=0.7, # Lower temperature for more deterministic output
-    )
+        do_sample=False,
+        return_dict_in_generate=True,
+        output_scores=True,
+    ).sequences[0]:
+        output_ids.append(output.item())
+        if streamer:
+            streamer.put(torch.tensor([output]))
+        else:
+            yield tokenizer.decode([output], skip_special_tokens=True)
 
-    # Decode and return the answer
-    answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    #return answer.split("Answer: ")[-1].strip()
-    return answer
-
-def generate_answer_stdalone(query, tokenizer, model):
-    # Combine query and retrieved documents into a prompt    
-    #prompt = f"Question: {query}\n: Answer:"
-    #prompt = f"Complete the following Python code, output only code which is required to complete ongoing line or next lines to finish ongoing function:\n```python\n{query}\n```"
-    #prompt = f"python\n{query}\n"
-    prompt = query
-
-    # Tokenize input
-    inputs = tokenizer(prompt, return_tensors="pt")
-
-    # Generate response
-    outputs = model.generate(
-        input_ids=inputs.input_ids,
-        attention_mask=inputs.attention_mask,
-        max_length=100,
-        max_new_tokens=70,
-        num_return_sequences=1,
-        no_repeat_ngram_size=2, #Prevents bigram repetition, which can force gpt2 to diversify its output unnaturally, leading to incoherent text like the population statistics.
-        do_sample=True, # Random sampling increases the likelihood of gpt2 generating hallucinated or off-topic text, even with relevant context.
-        top_k=80,
-        top_p=0.9,
-        temperature=0.7      
-    )
-
-    # Decode and return the answer
-    answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    #return answer.split("```python\n")[-1].strip()
-    return answer
+    if streamer:
+        streamer.end()
 
 def main():
-    # # Load data
+    # Load data
+    print("Loading data...")
     data_file = "./data.txt"
-    documents = load_data(data_file)
+    documents = load_data_from_file(data_file)
+    print(f"Loaded {len(documents)} documents.")
+    if not documents:
+        print("No documents found in the file.")
+        return
     
-    # Initialize retriever (sentence-transformers)
+    print("Loading retriever model...")
     retriever_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-    # Create embeddings and FAISS index
+    # Create embeddings and index
     embeddings = create_embeddings(documents, retriever_model)
     index = build_index(embeddings)    
     #print (embeddings.shape)    
+    print("Index built successfully.")
     
-    # Initialize generative model (use a small model for simplicity)
-    #model_name = "distilgpt2"  # Small model for quick testing
-    #model_name = "openai-community/gpt2"
-    #model_name = "facebook/bart-large"
-    #model_name  = "microsoft/CodeGPT-small-py"
-    #model_name = "Salesforce/codegen-350M-mono"  # Small model for quick testing
     model_name = "google/flan-t5-base"
     
+    print(f"Loading generator model: {model_name}...")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     #gen_model = AutoModelForCausalLM.from_pretrained(model_name)
     gen_model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    print("Generator model loaded successfully.")
 
     # Example query
-    #query = "How many countries are there in the world?"
-    query = "What is good material for building a construction to my backyard?"
+    query = "How many countries are there in the world?"
+    
 
+    print(f"Query: {query}")
     # Retrieve relevant documents
     retrieved_docs = retrieve_documents(query, retriever_model, index, documents, k=1)
-    print(f"Retrieved document: {retrieved_docs[0]}")
+    print(f"Retrieved document: {retrieved_docs}")
 
     #answer = generate_answer_stdalone(query, tokenizer, gen_model)
-    answer = generate_answer(query, retrieved_docs, tokenizer, gen_model)
-    print("Standalone Answer:", answer)
+    #answer = generate_answer(query, retrieved_docs, tokenizer, gen_model)
+    print("Streaming Answer:", end=" ", flush=True)
+    for token in generate_answer_stream(query, retrieved_docs, tokenizer, gen_model):
+        print(token, end="", flush=True)
+    print()
 
 if __name__ == "__main__":
     main()
