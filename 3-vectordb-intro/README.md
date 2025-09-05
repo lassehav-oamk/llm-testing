@@ -48,8 +48,6 @@ This command starts Milvus and its dependencies (Etcd (a distributed key value s
 
 ### 2. Run the Code
 
-Save the provided Python code into a file named, for example, `vectordb-intro.py`.
-
 Execute the script from your terminal:
 
 ```bash

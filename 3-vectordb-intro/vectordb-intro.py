@@ -82,14 +82,14 @@ def queryVectorDb(query):
     return results
 
 
-#initVectorDb()  # Initialize the vector database and insert example documents
+initVectorDb()  # Initialize the vector database and insert example documents
 
 ##
 ## Now we can perform a similarity search on the collection.
 ##
 
 # Here is our example search query in plain text.
-search_query = "How to navigate in tidal waters?"
+search_query = "How to win sailboat races"
 
 # To search, we can now use the queryVectorDb function.
 results = queryVectorDb(search_query)
