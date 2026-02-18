@@ -27,7 +27,27 @@ Follow these steps to set up and run the RAG system:
 
 ### Installation
 
-1.  **Install dependencies**:
+1.  **Create a virtual environment**:
+    It is recommended to use a virtual environment to keep dependencies isolated.
+    ```bash
+    python -m venv venv
+    ```
+
+2.  **Activate the virtual environment**:
+    * **Linux/macOS**:
+        ```bash
+        source venv/bin/activate
+        ```
+    * **Windows (Command Prompt)**:
+        ```bash
+        venv\Scripts\activate.bat
+        ```
+    * **Windows (PowerShell)**:
+        ```powershell
+        venv\Scripts\Activate.ps1
+        ```
+
+3.  **Install dependencies**:
     This project uses a `requirements.txt` file to manage its dependencies.
     ```bash
     pip install -r requirements.txt
