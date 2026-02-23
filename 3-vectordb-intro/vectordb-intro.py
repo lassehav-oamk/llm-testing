@@ -1,5 +1,21 @@
-from sentence_transformers import SentenceTransformer
-from pymilvus import connections, Collection, FieldSchema, CollectionSchema, DataType
+"""
+ChromaDB Sailing Knowledge Base - Vector Database Intro
+
+This script demonstrates the core concepts of a vector database using ChromaDB.
+It builds a small sailing knowledge base by storing text documents as vector
+embeddings, then performs semantic similarity searches against them.
+
+Key concepts covered:
+  - Creating and persisting a ChromaDB collection
+  - Using ChromaDB's built-in embedding model (all-MiniLM-L6-v2 via onnxruntime)
+    to automatically convert text into vector embeddings on insert and query
+  - Performing a similarity search using natural language and interpreting
+    the distance scores returned (lower = more similar)
+"""
+
+import chromadb
+
+DATABASE_FILE_PATH = "./chroma_db_data"  # Path where ChromaDB will store its data
 
 
 def initVectorDb():
@@ -12,73 +28,45 @@ def initVectorDb():
         "Accurate marine weather forecasting is critical for safe sailing. Learn to interpret synoptic charts, GRIB files, and local weather reports. Pay attention to wind speed and direction and wave height, squalls, and fog. Marine VHF radio and satellite communicators are valuable tools for receiving updates.",
         "Mastering a few essential sailing knots is fundamental for any sailor. Key knots include the bowline for forming a secure loop, the cleat hitch for tying to a cleat, the sheet bend for joining two ropes, and the figure-eight knot as a stopper knot. Practice makes perfect for tying them quickly and correctly.",
         "Regular maintenance of your sailboat's auxiliary engine is crucial for reliability, especially on longer trips. This includes checking oil levels, fuel filters, impellers, and belts. Learning basic troubleshooting can save a voyage. Always carry spare parts for common issues.",
-        "Winning sailboat races involves a combination of boat speed, strategic decision-making, and understanding the rules. Key tactics include starting line strategy, tacking and gybing efficiently, understanding wind shifts, and exploiting current. Knowing the Racing Rules of Sailing (RRS) is paramount.",
+        "Winning sailboat races involves a combination of boat speed, strategic decision-making, and understanding the rules. Key tactics include starting line strategy, sail trim, boat handling by tacking and gybing efficiently, understanding wind shifts, and exploiting current. Knowing the Racing Rules of Sailing (RRS) is paramount.",
         "Proper anchoring techniques are essential for securing your boat. Different anchor types (Danforth, CQR, Bruce, Rocna) perform best on various bottom compositions (sand, mud, rock). Factors like scope, depth, and swing room must be considered. Always test your anchor's set.",
         "Sailing can be a fantastic family activity. Involve children in age-appropriate tasks, ensure their safety with life jackets and safety netting, and make the experience fun with games and destinations. Pack plenty of snacks and sun protection. Start with shorter trips and gradually increase duration."
     ]
 
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    embeddings = model.encode(exampleSourceDocuments)
+    # PersistentClient stores the database on disk so data survives between runs
+    client = chromadb.PersistentClient(path=DATABASE_FILE_PATH)
 
-    connections.connect("default", host="localhost", port="19530")
+    # get_or_create_collection avoids errors if the collection already exists
+    # ChromaDB uses its built-in embedding model (all-MiniLM-L6-v2 via onnxruntime) by default
+    collection = client.get_or_create_collection(name="sailing_knowledge_base")
 
-    # Lets define the fields in our database collection
-    fields = [
-        FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
-        FieldSchema(name="text", dtype=DataType.VARCHAR, max_length=5000),
-        FieldSchema(name="embedding", dtype=DataType.FLOAT_VECTOR, dim=384)
-    ]
+    # Assume the collection is already initialized if it contains the same number of documents as our example set
+    if(collection.count() == exampleSourceDocuments.__len__()):
+        print("Collection already initialized with example documents.")
+        return  
+    
+    # Add documents - ChromaDB automatically generates embeddings for them
+    collection.add(
+        documents=exampleSourceDocuments,
+        ids=[str(i) for i in range(len(exampleSourceDocuments))]
+    )
 
-    # Next create a schema by using the fields defined above
-    schema = CollectionSchema(fields, description="Sailing knowledge base")
-    # Now we can create a collection in Milvus
-    collection = Collection(name="sailing_knowledge_base", schema=schema)
-
-    # Create an index for the embedding field so we can search it later.
-    # There are different index types, we will use IVF_FLAT for this example as it is simple and effective for small datasets.
-    index_params = {
-        "index_type": "IVF_FLAT",
-        "metric_type": "L2", # L2 is the Euclidean distance, suitable for most use cases
-        "params": {"nlist": 128} # nlist is the number of clusters, a good starting point is 100-200 for small datasets
-    }
-    collection.create_index(field_name="embedding", index_params=index_params)  
-
-    collection.load() #this loads the collection into memory even though there is no data yet
-
-    # Now we are ready to insert data into the collection.
-    # First we need to prepare the data in the format what was defined in the schema.
-    data = [
-        exampleSourceDocuments,  # Texts
-        embeddings.tolist()  # Embeddings
-    ]
-    # Insert the data into the collection
-    insert_result = collection.insert(data)
-    print(f"Inserted {len(insert_result.primary_keys)} documents into the collection.")
+    print(f"Inserted {len(exampleSourceDocuments)} documents into the collection.")
     print("Vector database initialized successfully.")
-
 
 
 def queryVectorDb(query):
     print(f"Querying vector database for: {query}")
-    # Connect to the Milvus server
-    connections.connect("default", host="localhost", port="19530")
 
-    # Access the collection we created earlier
-    collection = Collection(name="sailing_knowledge_base")
+    client = chromadb.PersistentClient(path=DATABASE_FILE_PATH)
+    collection = client.get_collection(name="sailing_knowledge_base")
 
-    # Encode the query using the same model we used for the documents
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    query_embedding = model.encode([query])
-
-    # Perform a similarity search
-    results = collection.search(
-        data=query_embedding.tolist(),  # The query embedding
-        anns_field="embedding",  # The field we want to search
-        param={"metric_type": "L2", "params": {"nprobe": 10}},  # Search parameters
-        limit=5,  # Number of results to return
-        output_fields=["text"],  # Fields to return in the results
+    # ChromaDB automatically embeds the query text using the same built-in model
+    results = collection.query(
+        query_texts=[query],
+        n_results=5
     )
-    print(f"Found {len(results[0])} results for the query.")
+    print(f"Found {len(results['documents'][0])} results for the query.")
     return results
 
 
@@ -89,13 +77,13 @@ initVectorDb()  # Initialize the vector database and insert example documents
 ##
 
 # Here is our example search query in plain text.
-search_query = "How to win sailboat races"
+search_query = "How to win sailboat races, what do i need to know and master?"
 
 # To search, we can now use the queryVectorDb function.
 results = queryVectorDb(search_query)
-print ("Results\n###########################################################")
+print("Results and scores (smaller distance is better)\n###########################################################")
+
 # Print the results
-for result in results[0]:
-    print(f"Query: {search_query}")
-    print(f"Result document: {result.entity.text}")
-    print(f"Score: {result.distance:.4f}\n")
+for doc, distance in zip(results['documents'][0], results['distances'][0]):
+    print(f"Result document: {doc}")
+    print(f"Score: {distance:.4f}\n")

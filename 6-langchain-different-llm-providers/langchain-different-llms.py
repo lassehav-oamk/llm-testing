@@ -21,6 +21,7 @@ if not os.environ.get('GEMINI_API_KEY'):
 prompt = "Explain LLM prompting in a concise way"
 
 # Example of how to initialize different LLMs using langchain's init_chat_model
+# Mistral model names here: https://docs.mistral.ai/getting-started/models/models_overview/
 mistral_llm = init_chat_model(
     model="magistral-small-latest",
     model_provider="mistral",
@@ -38,3 +39,4 @@ for chunk in mistral_llm.stream(prompt):
 
 # Your task, implement the same for Azure OpenAI and Google Gemini
 # Make sure to use the appropriate model names and parameters for each provider
+# See more information here: https://python.langchain.com/docs/integrations/chat/
