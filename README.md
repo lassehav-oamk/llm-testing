@@ -1,91 +1,69 @@
-# Getting Started with This Project
+# RAG Demos for LLMs
 
-Hey there! So you've cloned the repository – awesome! Let's get you set up to run this project. We use a virtual environment to keep things tidy and ensure everyone is working with the same library versions. This repository contains **three demo projects**, each in its own folder at the root of the repository. Each demo has its own `requirements.txt` for dependencies.
-
-## Setting Up Your Local Environment
-
-**1. Creating the Virtual Environment (if it doesn't exist):**
-
-If you don't see a `venv` folder in the project root, create one by running:
-
-```
-python -m venv venv
-```
-
-**2. Activating the Virtual Environment:**
-
-Activate the virtual environment before installing dependencies or running any demo.
-
-* **Windows (Command Prompt):**
-    ```
-    venv\Scripts\activate
-    ```
-* **Windows (PowerShell):**
-    ```
-    .\venv\Scripts\Activate.ps1
-    ```
-* **Linux/macOS:**
-    ```
-    source venv/bin/activate
-    ```
-
-Once activated, you'll see `(venv)` at the start of your terminal prompt.
+A collection of progressively more advanced demos exploring **Retrieval-Augmented Generation (RAG)** concepts for Large Language Models. Each demo lives in its own folder with its own README and `requirements.txt`.
 
 ---
 
-## Working with the Demo Projects
+## Demos
 
-There are three folders in the root directory, each containing a separate demo project. For each demo, follow these steps:
+| Folder | Description |
+|--------|-------------|
+| [`1-local-hello-worldrag`](./1-local-hello-worldrag/) | RAG hello world – a minimal local RAG pipeline in pure Python |
+| [`2-gemini-rag-hello-world`](./2-gemini-rag-hello-world/) | RAG with Google Gemini API and `sentence-transformers` |
+| [`3-vectordb-intro`](./3-vectordb-intro/) | Introduction to vector databases using ChromaDB |
+| [`4-rag-with-vectordb`](./4-rag-with-vectordb/) | Full RAG pipeline combining ChromaDB and Gemini |
+| [`5-langchain-rag-intro`](./5-langchain-rag-intro/) | RAG with the LangChain framework and Milvus as vector store |
+| [`6-langchain-different-llm-providers`](./6-langchain-different-llm-providers/) | Swapping LLM providers (Azure OpenAI, Mistral, Gemini) via LangChain |
+| [`llama3-base`](./llama3-base/) | Running Llama 3.1 locally from Hugging Face with streaming output |
 
-### 1. Change Directory to the Demo
+---
 
-Replace `<demo-folder>` with the actual folder name (e.g., `local-hello-worldrag`, `llama3-base`, `gemini-rag-hello-world`):
+## Setup
 
+Each demo uses the shared `venv` in the project root.
+
+**1. Create the virtual environment** (only needed once):
+
+```bash
+python -m venv venv
 ```
+
+**2. Activate it:**
+
+```bash
+# Windows (Command Prompt)
+venv\Scripts\activate
+
+# Windows (PowerShell)
+.\venv\Scripts\Activate.ps1
+
+# Linux / macOS
+source venv/bin/activate
+```
+
+Once activated you'll see `(venv)` at the start of your prompt.
+
+**3. Install dependencies for a demo:**
+
+```bash
 cd <demo-folder>
-```
-
-### 2. Install Dependencies
-
-Each demo has its own `requirements.txt`. With your virtual environment activated and inside the demo folder, run:
-
-```
 pip install -r requirements.txt
 ```
 
-### 3. Run the Demo
+**4. Run the demo** – check the README inside the folder for the exact command. Most demos use:
 
-Check the `README.md` or documentation inside each demo folder for specific instructions on how to start that demo. Common ways to start a Python project include:
-
-```
+```bash
 python main.py
 ```
-or
-```
-python app.py
-```
 
 ---
 
-## Example Workflow
+## Example
 
-Here's how you might run a demo called `demo1`:
-
-```
-# From the project root
+```bash
 python -m venv venv
-venv\Scripts\activate         # or source venv/bin/activate on Linux/macOS
-cd demo1
+source venv/bin/activate   # or venv\Scripts\activate on Windows
+cd 4-rag-with-vectordb
 pip install -r requirements.txt
-python main.py                # or the appropriate start command for the demo
+python main.py
 ```
-
----
-
-## Summary
-
-- Use a virtual environment (`venv`) in the project root.
-- Each demo project is in its own folder with its own `requirements.txt`.
-- Activate the virtual environment, change into the demo folder, install dependencies, and run the demo as instructed.
-
-Happy coding!
