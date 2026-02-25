@@ -8,7 +8,7 @@ This script demonstrates a Retrieval Augmented Generation (RAG) pipeline. It use
 
 * **Retrieval Augmented Generation (RAG)** — enriching an LLM prompt with relevant context retrieved from a vector database to produce more accurate, grounded answers.
 * **ChromaDB PersistentClient** — stores the vector database on disk so it survives between runs. Uses the same `./chroma_db_data` path as example 3.
-* **Built-in embeddings** — ChromaDB automatically converts documents and queries into vector embeddings using `all-MiniLM-L6-v2` via `onnxruntime`. No external embedding model required.
+* **Built-in embeddings** — ChromaDB automatically converts documents and queries into vector embeddings using the default `all-MiniLM-L6-v2`. No external embedding model required.
 * **RAG vs. no-RAG comparison** — the script runs the same question both with and without retrieved context so you can compare the quality of responses.
 
 ---
@@ -16,9 +16,28 @@ This script demonstrates a Retrieval Augmented Generation (RAG) pipeline. It use
 ## Prerequisites
 
 * **Python 3.8+**
-* **Gemini API key** — set the `GEMINI_API_KEY` environment variable before running.
+* **Gemini API key** — set the `GEMINI_API_KEY` environment variable before running. Get your gey from https://aistudio.google.com/ or https://console.cloud.google.com/ if you don't have one.
 
 ### Installing Python Dependencies
+
+Activate the virtual environment before installing dependencies or running any demo.
+
+* **Windows (Command Prompt):**
+    ```
+    venv\Scripts\activate
+    ```
+* **Windows (PowerShell):**
+    ```
+    .\venv\Scripts\Activate.ps1
+    ```
+* **Linux/macOS:**
+    ```
+    source venv/bin/activate
+    ```
+
+Once activated, you'll see `(venv)` at the start of your terminal prompt.
+
+Then, install the required Python packages using pip:
 
 ```bash
 pip install -r requirements.txt

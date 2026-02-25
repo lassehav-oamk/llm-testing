@@ -1,6 +1,7 @@
 import chromadb
 import os
 import google.generativeai as genai
+from sympy import pprint
 from sailing_documents import exampleSourceDocuments
 
 DATABASE_FILE_PATH = "./chroma_db_data"  # Path where ChromaDB will store its data
@@ -12,29 +13,8 @@ if not GEMINI_API_KEY:
 
 # Configure Gemini API
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash')
+model = genai.GenerativeModel('gemini-2.5-flash-lite')
 
-
-# Query Gemini API
-def query_gemini(prompt):
-    response = model.generate_content(prompt)
-    return response.text.strip()
-
-# Retrieve context from vector database
-def create_context(question):
-    results = queryVectorDb(question)
-    # Extract text from search results to create context
-    return " ".join(results['documents'][0])
-
-# Main RAG function
-def rag_query(question):
-    # Retrieve context
-    context = create_context(question)
-    # Create prompt for Gemini
-    prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
-    # Get response from Gemini
-    answer = query_gemini(prompt)
-    return answer
 
 def initVectorDb():
     print("Initializing vector database...")
@@ -58,6 +38,27 @@ def initVectorDb():
     print(f"Inserted {len(exampleSourceDocuments)} documents into the collection.")
     print("Vector database initialized successfully.")
 
+# Main RAG function
+def rag_query(question):
+    # Retrieve context
+    context = create_context_from_vector_db(question)
+    # Create prompt for Gemini
+    prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
+    # Get response from Gemini
+    answer = query_gemini(prompt)
+    return answer
+
+# Query Gemini API
+def query_gemini(prompt):
+    response = model.generate_content(prompt)
+    return response.text.strip()
+
+# Retrieve context from vector database
+def create_context_from_vector_db(question):
+    results = queryVectorDb(question)
+    # Extract text from search results to create context
+    return " ".join(results['documents'][0])
+
 
 def queryVectorDb(query):
     print(f"Querying vector database for: {query}")
@@ -71,6 +72,8 @@ def queryVectorDb(query):
         n_results=5
     )
     print(f"Found {len(results['documents'][0])} results for the query.")
+    #print("Results:")
+    #pprint(results)
     return results
 
 def query_with_rag(question):
@@ -87,17 +90,20 @@ initVectorDb()  # Initialize the vector database and insert example documents
 ##
 
 # Here is our example search query in plain text.
-search_query = "How to win sailboat races"
+# search_query = "Where is the Regatta Office? Emerald Bay Championship 2026"
+search_query = "What does a purple checkered flag mean?"
+# search_query = "Who won last year?"
+# search_query = "What is the penalty for tacking in Obsidian Reach?"
 
 # To search, we can now use the queryVectorDb function.
 RAGresults = rag_query(search_query)
 print("RAG Results\n###########################################################")
 # Print the results
 print(f"Query: {search_query}")
-print(f"Score: {RAGresults}\n")
+print(f"LLM Response: {RAGresults}\n")
 
 print("************************************************************")
 NoContexResults = query_with_rag(search_query)
 print("No RAG Results\n###########################################################")
 print(f"Query: {search_query}")
-print(f"Score: {NoContexResults}\n")
+print(f"LLM Response: {NoContexResults}\n")

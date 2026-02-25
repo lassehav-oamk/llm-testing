@@ -21,16 +21,16 @@ DATABASE_FILE_PATH = "./chroma_db_data"  # Path where ChromaDB will store its da
 def initVectorDb():
     print("Initializing vector database...")
     exampleSourceDocuments = [
-        "Dinghy sailing is an accessible and exhilarating way to get started on the water. Small, nimble boats like Optimists, Lasers, and 420s are popular choices for learning the basics of rigging, steering, and tacking. Safety is paramount, so always wear a life jacket and understand basic right-of-way rules. Many sailing clubs offer introductory courses.",
-        "Navigating along a coastline requires attention to charts, tides, currents, and weather. Understanding buoyage systems, using GPS effectively, and plotting courses are crucial skills. Always carry paper charts as a backup to electronic navigation. Be aware of safe depths and potential hazards like rocks and shoals.",
-        "Achieving optimal sail trim is key to maximizing boat speed and efficiency. This involves adjusting the mainsheet, jib sheets, vang, outhaul, and cunningham. Understanding wind angles and sail shape variations for different points of sail (upwind, reaching, downwind) is fundamental. Practice and feel are essential for mastery.",
-        "Offshore cruising offers the ultimate freedom and adventure. Planning for long passages involves provisioning, checking all systems, and monitoring long-range weather forecasts. Self-sufficiency is vital, as help may be days away. Enjoying remote anchorages and starry nights at sea are unforgettable experiences.",
-        "Accurate marine weather forecasting is critical for safe sailing. Learn to interpret synoptic charts, GRIB files, and local weather reports. Pay attention to wind speed and direction and wave height, squalls, and fog. Marine VHF radio and satellite communicators are valuable tools for receiving updates.",
-        "Mastering a few essential sailing knots is fundamental for any sailor. Key knots include the bowline for forming a secure loop, the cleat hitch for tying to a cleat, the sheet bend for joining two ropes, and the figure-eight knot as a stopper knot. Practice makes perfect for tying them quickly and correctly.",
-        "Regular maintenance of your sailboat's auxiliary engine is crucial for reliability, especially on longer trips. This includes checking oil levels, fuel filters, impellers, and belts. Learning basic troubleshooting can save a voyage. Always carry spare parts for common issues.",
-        "Winning sailboat races involves a combination of boat speed, strategic decision-making, and understanding the rules. Key tactics include starting line strategy, sail trim, boat handling by tacking and gybing efficiently, understanding wind shifts, and exploiting current. Knowing the Racing Rules of Sailing (RRS) is paramount.",
-        "Proper anchoring techniques are essential for securing your boat. Different anchor types (Danforth, CQR, Bruce, Rocna) perform best on various bottom compositions (sand, mud, rock). Factors like scope, depth, and swing room must be considered. Always test your anchor's set.",
-        "Sailing can be a fantastic family activity. Involve children in age-appropriate tasks, ensure their safety with life jackets and safety netting, and make the experience fun with games and destinations. Pack plenty of snacks and sun protection. Start with shorter trips and gradually increase duration."
+        "DOC-001: The 2026 Emerald Bay Championship is scheduled for June 12-14. The Regatta Office is temporarily relocated to the 'Rusty Anchor Tavern' due to pier renovations.",
+        "DOC-002: SPECIAL RULE: The 'Obsidian Reach' channel is designated a 'No-Tack Zone' this year. Boats found tacking within the channel markers will receive a 20% scoring penalty (Rule 14.2).",
+        "DOC-003: 2026 COURSE UPDATE: The traditional 'Buoy Alpha' has been replaced by a floating solar barge named 'Sun-Ray 1'. All competitors must leave Sun-Ray 1 to starboard.",
+        "DOC-004: FLAG SIGNALS: A unique 'checkered purple flag' displayed on the Committee Boat signifies an immediate shark-sighting suspension. Return to the Rusty Anchor Tavern immediately.",
+        "DOC-005: 2025 PODIUM RECAP: Last year's winner was the yacht 'Silver Wake' skippered by Captain Elias Thorne. Second place went to 'Blue Mist' (Sarah Chen) and third to 'Wind-Dancer' (Markus Vane).",
+        "DOC-006: HISTORICAL DISQUALIFICATION: In 2025, the yacht 'Storm-Petrel' was disqualified for using an unauthorized experimental hydrofoil in the 'No-Lift' division.",
+        "DOC-007: THE 'WHISPERING REEF' HAZARD: Due to shifting sands in early 2026, the Whispering Reef now has a minimum depth of only 1.2 meters at low tide. This is 0.5m shallower than listed on official charts.",
+        "DOC-008: SCORING SYSTEM: The 2026 Regatta uses the 'Low-Point-Plus' system. A first-place finish earns 0.7 points (instead of the standard 1.0) to reward dominant performance.",
+        "DOC-009: CREW REQUIREMENTS: All boats in the 'Masters' division must have at least one crew member over the age of 65 and one under the age of 18, to promote 'intergenerational mentorship'.",
+        "DOC-010: WEATHER PROTOCOL: If wind speeds exceed 28 knots, the race is moved to 'Sector 7' (The Sheltered Lagoon). If it drops below 4 knots, a 'Paddle-Off' tiebreaker is held at the docks."
     ]
 
     # PersistentClient stores the database on disk so data survives between runs
@@ -77,7 +77,7 @@ initVectorDb()  # Initialize the vector database and insert example documents
 ##
 
 # Here is our example search query in plain text.
-search_query = "How to win sailboat races, what do i need to know and master?"
+search_query = "Who won the regatta last year"
 
 # To search, we can now use the queryVectorDb function.
 results = queryVectorDb(search_query)

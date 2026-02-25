@@ -20,7 +20,24 @@ Before running this script, make sure you have the following:
 
 ### Installing Python Dependencies
 
-Install the required Python packages using pip:
+Activate the virtual environment before installing dependencies or running any demo.
+
+* **Windows (Command Prompt):**
+    ```
+    venv\Scripts\activate
+    ```
+* **Windows (PowerShell):**
+    ```
+    .\venv\Scripts\Activate.ps1
+    ```
+* **Linux/macOS:**
+    ```
+    source venv/bin/activate
+    ```
+
+Once activated, you'll see `(venv)` at the start of your terminal prompt.
+
+Then, install the required Python packages using pip:
 
 ```bash
 pip install -r requirements.txt
