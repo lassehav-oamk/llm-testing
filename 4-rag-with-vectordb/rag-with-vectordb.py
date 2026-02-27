@@ -76,7 +76,7 @@ def queryVectorDb(query):
     #pprint(results)
     return results
 
-def query_with_rag(question):
+def query_without_rag(question):
     prompt = f"Question: {question}\nAnswer:"
     # Get response from Gemini
     answer = query_gemini(prompt)
@@ -95,7 +95,6 @@ search_query = "What does a purple checkered flag mean?"
 # search_query = "Who won last year?"
 # search_query = "What is the penalty for tacking in Obsidian Reach?"
 
-# To search, we can now use the queryVectorDb function.
 RAGresults = rag_query(search_query)
 print("RAG Results\n###########################################################")
 # Print the results
@@ -103,7 +102,7 @@ print(f"Query: {search_query}")
 print(f"LLM Response: {RAGresults}\n")
 
 print("************************************************************")
-NoContexResults = query_with_rag(search_query)
+NoContextResults = query_without_rag(search_query)
 print("No RAG Results\n###########################################################")
 print(f"Query: {search_query}")
-print(f"LLM Response: {NoContexResults}\n")
+print(f"LLM Response: {NoContextResults}\n")
